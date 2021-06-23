@@ -9,7 +9,7 @@ import Header from "./components/header/Header";
 function App() {
     return (
         <div className="App">
-            <div className="flex flex-col h-full justify-center items-center">
+            <div className="flex flex-col h-full justify-start items-center">
                 <Header className="mt-5"/>
                 <Room className="p-2 m-10"/>
             </div>

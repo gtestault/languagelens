@@ -1,20 +1,17 @@
 import React, {useMemo} from "react"
 import clsx from "clsx";
-import {UserOutlined} from '@ant-design/icons';
 import {Avatar, Badge} from "antd";
 import botImg from "../../../assets/pictures/robot.png"
+import {SENDER} from "../room/roomSlice";
 
-export enum SENDER {
-    SENDER_BOT,
-    SENDER_USER,
-}
 
 type MessageProps = {
     children: string
-    delivered: string,
+    delivered: boolean,
+    className?: string,
     sender: SENDER,
 }
-const Message = ({children, delivered, sender}: MessageProps) => {
+const Message = ({children, delivered, sender, className}: MessageProps) => {
     const messageStyle = useMemo(() => {
         if (sender === SENDER.SENDER_USER) {
             return "rounded-bl-lg self-end"
@@ -26,21 +23,23 @@ const Message = ({children, delivered, sender}: MessageProps) => {
         if (sender !== SENDER.SENDER_BOT) {
             return null
         }
-        return <Avatar style={{backgroundColor: "#BFDBFE"}} shape="circle" size="default" src={botImg} />
+        return (
+            <Avatar style={{backgroundColor: "#BFDBFE"}} shape="circle" size="default" src={botImg}/>
+        )
     }
     const renderUserAvatar = () => {
         if (sender !== SENDER.SENDER_USER) {
             return null
         }
-        return <Avatar style={{backgroundColor: "#374151"}} shape="circle" size="default" >You</Avatar>
+        return <Avatar style={{backgroundColor: "#374151"}} shape="circle" size="default">You</Avatar>
     }
 
     const roundingStyle = sender == SENDER.SENDER_USER ? "" : ""
     return (
 
-        <div className={clsx( "flex flex-row items-end gap-1", messageStyle)}>
+        <div className={clsx("flex flex-row items-end gap-1", messageStyle, className)}>
             {renderBotAvatar()}
-            <div className={clsx("bg-blue-500 text-white rounded-t-lg p-1.5", messageStyle)}>
+            <div style={{maxWidth: "20em", overflowWrap: "break-word"}} className={clsx("bg-blue-500 text-white rounded-t-lg p-1.5", messageStyle)}>
                 {children}
             </div>
             {renderUserAvatar()}

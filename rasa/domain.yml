@@ -20,23 +20,22 @@ slots:
 
 responses:
   utter_greet:
-  - text: "Hey! How are you?"
-
-  utter_cheer_up:
-  - text: "Here is something to cheer you up:"
-    image: "https://i.imgur.com/nGF1K8f.jpg"
+  - text: "Hey! welcome to Language Lens. I am a bot able to process documents for you. Do you want to learn more?"
 
   utter_did_that_help:
   - text: "Did that help you?"
 
   utter_happy:
-  - text: "Great, carry on!"
+  - text: "Glad I could help you!"
+
+  utter_apology:
+    - text: "Sorry I couldn't help you :("
 
   utter_goodbye:
   - text: "Bye"
 
-  utter_iamabot:
-  - text: "I am a bot, powered by Rasa."
+  utter_capabilities:
+  - text: "I am a document analysis bot. You can give me PDF documents and I'll process them."
 
   utter_document_ready:
   - text: "Hey! I finished processing {document} for you."
