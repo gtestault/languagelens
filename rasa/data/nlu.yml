@@ -32,6 +32,19 @@ nlu:
     - bye bye
     - see you later
 
+- intent: insult
+  examples: |
+    - fuck you
+    - cunt
+    - asshole
+    - piss off
+    - wanker
+    - son of a bitch
+    - you are an asshole
+    - you absolute twat
+    - you are a cunt
+    - you are a wanker
+
 - intent: affirm
   examples: |
     - yes
@@ -52,6 +65,15 @@ nlu:
     - don't like that
     - no way
     - not really
+
+- intent: upload_file
+  examples: |
+    - can i send you a file
+    - sending you a file
+    - here is a pdf
+    - upload pdf
+    - upload
+    - sending you a pdf
 
 - intent: bot_challenge
   examples: |

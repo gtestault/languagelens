@@ -6,8 +6,10 @@ intents:
   - affirm
   - deny
   - mood_great
+  - insult
   - mood_unhappy
   - bot_challenge
+  - upload_file
   - EXTERNAL_document_ready
 
 entities:
@@ -34,11 +36,23 @@ responses:
   utter_goodbye:
   - text: "Bye"
 
+  utter_prompt_document:
+  - text: "Would you like to upload a PDF for me to process?"
+
   utter_capabilities:
-  - text: "I am a document analysis bot. You can give me PDF documents and I'll process them."
+  - text: "I am a document analysis bot. You can give me PDF documents and I'll do some processing magic on them. Do you want to upload a file for me to process?"
 
   utter_document_ready:
   - text: "Hey! I finished processing {document} for you."
+
+  utter_gif_shocked:
+  - custom:
+      type: "gif"
+      gif: shocked
+
+  utter_upload_file:
+  - custom:
+      type: "upload"
 
 session_config:
   session_expiration_time: 60

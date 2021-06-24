@@ -1,10 +1,12 @@
-import React, {useEffect, useRef, useState} from "react"
+import React, {useCallback, useEffect, useRef, useState} from "react"
 import Message from "../message/Message";
 import clsx from "clsx";
 import {Input, Spin} from "antd";
 import useWebSocket, {ReadyState} from "react-use-websocket";
 import {addMessage, Message as MessageType, selectIsBotThinking, selectMessages, SENDER} from "./roomSlice";
 import {useAppDispatch, useAppSelector} from "../../../app/hooks";
+import {GifMessage, REACTION} from "../message/GifMessage/GifMessage";
+import {UploadMessage} from "../message/UploadMessage/UploadMessage";
 
 type RoomProps = {
     className?: string
@@ -30,10 +32,14 @@ const Room = (props: RoomProps) => {
         [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
     }[readyState];
 
-    useEffect(() => {
+    const scrollToBottomOfChat = useCallback(() => {
         if (!chatBoxRef || !chatBoxRef.current) return
         chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight
-    }, [messages])
+    }, [chatBoxRef])
+
+    useEffect(() => {
+        scrollToBottomOfChat()
+    }, [messages, scrollToBottomOfChat])
 
     useEffect(() => {
         console.log(lastMessage)
@@ -46,15 +52,23 @@ const Room = (props: RoomProps) => {
     }, [lastMessage])
 
     const renderMessages = () => {
-        return messages.map(msg => (
-            <Message className="ml-2 mr-2" key={msg.time} delivered sender={msg.sender}>{msg.message}</Message>
-        ))
+        return messages.map(msg => {
+            if (msg.custom) {
+                switch (msg.custom.type) {
+                    case "gif":
+                        return <GifMessage handleGifLoaded={scrollToBottomOfChat} key={msg.time} msg={msg}/>
+                    case "upload":
+                        return <UploadMessage key={msg.time} msg={msg}/>
+                }
+            }
+            return <Message className="ml-2 mr-2" key={msg.time} delivered sender={msg.sender}>{msg.message}</Message>
+        })
     }
 
     const renderThinkingIndicator = () => {
         if (isBotThinking) {
             return (
-                    <Spin className="mt-10" tip="thinking"/>
+                <Spin className="mt-10" tip="thinking"/>
             )
         }
         return null
@@ -66,8 +80,6 @@ const Room = (props: RoomProps) => {
         dispatch(addMessage({message: messageBoxInput, sender: SENDER.SENDER_USER, time: new Date().getTime()}))
         sendJsonMessage({message: messageBoxInput})
         setMessageBoxInput("")
-        if (!chatBoxRef || !chatBoxRef.current) return
-        //chatBoxRef.current.scrollTop = chatBoxRef.current.clientHeight - chatBoxRef.current.scrollHeight
     }
 
     return (

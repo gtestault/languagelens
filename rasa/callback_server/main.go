@@ -22,8 +22,9 @@ type RasaProxy struct {
 }
 
 type RasaCallbackMessage struct {
-	Text      string `json:"text"`
-	Recipient string `json:"recipient_id"`
+	Text      string           `json:"text"`
+	Recipient string           `json:"recipient_id"`
+	Custom    *json.RawMessage `json:"custom"`
 }
 
 func (r *RasaProxy) ReceiveRasaCallback(w http.ResponseWriter, req *http.Request) {
@@ -38,7 +39,7 @@ func (r *RasaProxy) ReceiveRasaCallback(w http.ResponseWriter, req *http.Request
 		log.Println("socket not found:", msg.Recipient)
 		return
 	}
-	rawMsg, err := json.Marshal(ChatMessageReply{Message: msg.Text, Sender: SENDER_BOT})
+	rawMsg, err := json.Marshal(ChatMessageReply{Message: msg.Text, Sender: SENDER_BOT, Custom: msg.Custom})
 	if err != nil {
 		log.Println(err)
 		return
@@ -53,8 +54,9 @@ type ChatMessage struct {
 }
 
 type ChatMessageReply struct {
-	Message string `json:"message"`
-	Sender  int    `json:"sender"`
+	Message string           `json:"message"`
+	Sender  int              `json:"sender"`
+	Custom  *json.RawMessage `json:"custom"`
 }
 
 func (ss *SocketServer) SendChatMessage(msg ChatMessage) error {

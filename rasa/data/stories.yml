@@ -8,10 +8,29 @@ stories:
   - action: utter_greet
   - intent: affirm
   - action: utter_capabilities
+  - intent: affirm
+  - action: utter_upload_file
 
 - story: sad path
   steps:
     - intent: greet
     - action: utter_greet
     - intent: deny
+    - action: utter_prompt_document
+    - intent: deny
     - action: utter_apology
+
+
+- story: sad path 2
+  steps:
+    - intent: greet
+    - action: utter_greet
+    - intent: affirm
+    - action: utter_capabilities
+    - intent: deny
+    - action: utter_apology
+
+- story: power user path
+  steps:
+    - intent: upload_file
+    - action: utter_upload_file

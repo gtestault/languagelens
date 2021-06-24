@@ -6,6 +6,7 @@ export interface Message {
     sender: SENDER,
     message: string
     time?: number
+    custom?: any
 }
 
 export interface RoomState {
@@ -20,7 +21,7 @@ export enum SENDER {
 
 const initialBotMessage: Message = {
     sender: SENDER.SENDER_BOT,
-    message: "Hi I'm Language Lens Bot. Ask me what I can do!",
+    message: "Hello!",
     time: new Date().getTime()
 }
 const initialState: RoomState = {

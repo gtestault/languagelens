@@ -1,4 +1,4 @@
-import React, {useMemo} from "react"
+import React, {ReactChildren, useMemo} from "react"
 import clsx from "clsx";
 import {Avatar, Badge} from "antd";
 import botImg from "../../../assets/pictures/robot.png"
@@ -6,7 +6,7 @@ import {SENDER} from "../room/roomSlice";
 
 
 type MessageProps = {
-    children: string
+    children: React.ReactNode
     delivered: boolean,
     className?: string,
     sender: SENDER,

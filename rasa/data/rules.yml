@@ -12,6 +12,11 @@ rules:
   - intent: bot_challenge
   - action: utter_capabilities
 
+- rule: Reply with meme when insulted
+  steps:
+    - intent: insult
+    - action: utter_gif_shocked
+
 - rule: Notify the user when a document is ready
   steps:
   - intent: EXTERNAL_document_ready
