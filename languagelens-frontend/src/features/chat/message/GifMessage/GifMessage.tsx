@@ -1,18 +1,38 @@
 import React, {SyntheticEvent} from "react";
-import {message} from "antd";
 import shockedGif from "../../../../assets/gif/shocked.gif"
 import shockedMonkey from "../../../../assets/gif/shocked_monkey.gif"
+import goodbye1Gif from "../../../../assets/gif/goodbye1.gif"
+import sadGif from "../../../../assets/gif/sad.gif"
+import goodbye2Gif from "../../../../assets/gif/goodbye2.gif"
+import yourwelcome from "../../../../assets/gif/np.gif"
 import Message from "../Message";
 import {Message as MessageType} from "../../room/roomSlice";
 
 
 export enum REACTION {
-   shocked= "shocked"
+    shocked = "shocked",
+    goodbye = "goodbye",
+    sad = "sad",
+    yourWelcome = "your_welcome",
 }
+
 export const repository = {
     [REACTION.shocked]: [
         shockedGif,
         shockedMonkey
+    ],
+
+    [REACTION.goodbye]: [
+        goodbye1Gif,
+        goodbye2Gif,
+    ],
+
+    [REACTION.sad]: [
+        sadGif,
+    ],
+
+    [REACTION.yourWelcome]: [
+        yourwelcome,
     ]
 }
 type GifMessageProps = {
@@ -21,20 +41,15 @@ type GifMessageProps = {
 }
 export const GifMessage = ({msg, handleGifLoaded}: GifMessageProps) => {
 
-    const reaction = msg.custom.gif
+    const reaction = (msg.custom.gif as REACTION)
     const getGif = (): string => {
         if (!msg.time) return ""
-        let reactionArr: string[]
-        switch (reaction) {
-            case REACTION.shocked:
-                reactionArr = repository[REACTION.shocked]
-                return reactionArr[msg.time%reactionArr.length]
-        }
-        return ""
+        let reactionArr: string[] = repository[reaction]
+        return reactionArr[msg.time % reactionArr.length]
     }
     return (
         <Message className="ml-2 mr-2" key={msg.time} delivered sender={msg.sender}>
-            <img onLoad={handleGifLoaded} src={getGif()} alt="shocked-gif" className="max-w-full"/>
+            <img onLoad={handleGifLoaded} src={getGif()} alt="gif" className="max-w-full"/>
         </Message>
     )
 };

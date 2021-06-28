@@ -6,8 +6,13 @@ import (
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
+	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
+	"github.com/rs/cors"
+	"io"
+	"io/ioutil"
 	"log"
+	"mime/multipart"
 	"net/http"
 	"time"
 )
@@ -15,10 +20,16 @@ import (
 const (
 	SENDER_BOT  = 0
 	SENDER_USER = 1
+
+	HAYSTACK_API_BASE_URL    = "http://127.0.0.1:8000"
+	HAYSTACK_API_UPLOAD_PATH = "/file-upload"
+
+	SERVER_PORT_NUMBER = "5034"
 )
 
 type RasaProxy struct {
-	ss *SocketServer
+	ss     *SocketServer
+	client *http.Client
 }
 
 type RasaCallbackMessage struct {
@@ -46,6 +57,59 @@ func (r *RasaProxy) ReceiveRasaCallback(w http.ResponseWriter, req *http.Request
 	}
 	socket.Write <- string(rawMsg)
 	return
+}
+
+func logInternalServerError(w http.ResponseWriter, err error) {
+	log.Println(err)
+	w.WriteHeader(http.StatusInternalServerError)
+}
+
+func (r *RasaProxy) HandleFileUpload(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("Content-Type", "multipart/form-data")
+	err := req.ParseMultipartForm(32 << 20) // 32MB is the default used by FormFile
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	fhs := req.MultipartForm.File["files"]
+	for _, fh := range fhs {
+		f, err := fh.Open()
+		if err != nil {
+			logInternalServerError(w, err)
+			return
+		}
+		proxyReqBody := &bytes.Buffer{}
+		formWriter := multipart.NewWriter(proxyReqBody)
+		fw, err := formWriter.CreateFormFile("file", fh.Filename)
+		if err != nil {
+			logInternalServerError(w, err)
+			return
+		}
+		_, err = io.Copy(fw, f)
+		if err != nil {
+			logInternalServerError(w, err)
+			return
+		}
+		_ = formWriter.Close()
+		proxyReq, err := http.NewRequest(http.MethodPost, HAYSTACK_API_BASE_URL+HAYSTACK_API_UPLOAD_PATH, bytes.NewReader(proxyReqBody.Bytes()))
+		if err != nil {
+			logInternalServerError(w, err)
+			return
+		}
+		proxyReq.Header.Set("Content-Type", formWriter.FormDataContentType())
+		proxyResp, err := r.client.Do(proxyReq)
+		if err != nil {
+			logInternalServerError(w, err)
+			return
+		}
+		if proxyResp.StatusCode > 200 {
+			proxyErrResp, _ := ioutil.ReadAll(proxyResp.Body)
+			err = errors.New(fmt.Sprintf("haystack wrong status code: %v, messsage: %v", proxyResp.Status, string(proxyErrResp)))
+			logInternalServerError(w, err)
+		}
+		log.Println("successful file proxy")
+	}
 }
 
 type ChatMessage struct {
@@ -77,7 +141,7 @@ func (ss *SocketServer) SendChatMessage(msg ChatMessage) error {
 
 type SocketServer struct {
 	Sockets map[string]*Socket
-	client  http.Client
+	client  *http.Client
 }
 
 type Socket struct {
@@ -149,11 +213,22 @@ func (ss *SocketServer) SocketWriter(conn *websocket.Conn, write chan string) {
 		}
 	}
 }
-
 func main() {
-	socketServer := SocketServer{client: http.Client{Timeout: 10 * time.Second}, Sockets: make(map[string]*Socket)}
-	proxy := RasaProxy{ss: &socketServer}
-	http.HandleFunc("/bot", proxy.ReceiveRasaCallback)
-	http.HandleFunc("/ws", socketServer.websocketHandler)
-	_ = http.ListenAndServe("127.0.0.1:5034", nil)
+	c := cors.New(cors.Options{
+		AllowedOrigins: []string{"*"},           // All origins
+		AllowedMethods: []string{"GET", "POST"}, // Allowing only get, just an example
+	})
+
+	client := http.Client{Timeout: 10 * time.Second}
+	socketServer := SocketServer{client: &client, Sockets: make(map[string]*Socket)}
+	proxy := RasaProxy{client: &client, ss: &socketServer}
+	router := mux.NewRouter()
+	router.HandleFunc("/bot", proxy.ReceiveRasaCallback)
+	router.HandleFunc("/upload", proxy.HandleFileUpload).Methods(http.MethodPost)
+	router.HandleFunc("/ws", socketServer.websocketHandler)
+	log.Println("Listening on port: ", SERVER_PORT_NUMBER)
+	err := http.ListenAndServe("127.0.0.1:"+SERVER_PORT_NUMBER, c.Handler(router))
+	if err != nil {
+		log.Fatal(err)
+	}
 }

@@ -10,6 +10,7 @@ intents:
   - mood_unhappy
   - bot_challenge
   - upload_file
+  - purpose
   - EXTERNAL_document_ready
 
 entities:
@@ -42,6 +43,9 @@ responses:
   utter_capabilities:
   - text: "I am a document analysis bot. You can give me PDF documents and I'll do some processing magic on them. Do you want to upload a file for me to process?"
 
+  utter_bot:
+  - text: "I am a bot BEEP-BOOP"
+
   utter_document_ready:
   - text: "Hey! I finished processing {document} for you."
 
@@ -49,6 +53,21 @@ responses:
   - custom:
       type: "gif"
       gif: shocked
+
+  utter_gif_goodbye:
+  - custom:
+      type: "gif"
+      gif: goodbye
+
+  utter_gif_sad:
+  - custom:
+      type: "gif"
+      gif: sad
+
+  utter_gif_your_welcome:
+  - custom:
+      type: "gif"
+      gif: your_welcome
 
   utter_upload_file:
   - custom:

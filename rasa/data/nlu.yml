@@ -68,12 +68,29 @@ nlu:
 
 - intent: upload_file
   examples: |
-    - can i send you a file
+    - can i send you a file?
     - sending you a file
     - here is a pdf
     - upload pdf
     - upload
     - sending you a pdf
+    - process
+    - process some files for me
+
+- intent: purpose
+  examples: |
+    - what is your purpose?
+    - what can you do?
+    - how can you help me?
+    - what's your thing?
+
+- intent: thank
+  examples: |
+    - thanks!
+    - thank you
+    - thank you so much
+    - appreciate it
+    - thanks for the help
 
 - intent: bot_challenge
   examples: |
@@ -81,6 +98,3 @@ nlu:
     - are you a human?
     - am I talking to a bot?
     - am I talking to a human?
-    - what can you do?
-    - how can you help me?
-    - what is your purpose?

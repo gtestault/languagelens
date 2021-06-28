@@ -6,11 +6,17 @@ rules:
   steps:
   - intent: goodbye
   - action: utter_goodbye
+  - action: utter_gif_goodbye
 
 - rule: Say 'I am a bot' anytime the user challenges
   steps:
   - intent: bot_challenge
-  - action: utter_capabilities
+  - action: utter_bot
+
+- rule: Reply your welcome when thanked
+  steps:
+    - intent: thank
+    - action: utter_gif_your_welcome
 
 - rule: Reply with meme when insulted
   steps:

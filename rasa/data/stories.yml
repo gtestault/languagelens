@@ -11,6 +11,16 @@ stories:
   - intent: affirm
   - action: utter_upload_file
 
+
+- story: happy path 2
+  steps:
+    - intent: greet
+    - action: utter_greet
+    - intent: deny
+    - action: utter_prompt_document
+    - intent: affirm
+    - action: utter_upload_file
+
 - story: sad path
   steps:
     - intent: greet
@@ -19,6 +29,7 @@ stories:
     - action: utter_prompt_document
     - intent: deny
     - action: utter_apology
+    - action: utter_gif_sad
 
 
 - story: sad path 2
@@ -29,6 +40,22 @@ stories:
     - action: utter_capabilities
     - intent: deny
     - action: utter_apology
+    - action: utter_gif_sad
+
+- story: purpose happy
+  steps:
+    - intent: purpose
+    - action: utter_capabilities
+    - intent: affirm
+    - action: utter_upload_file
+
+- story: purpose sad path
+  steps:
+    - intent: purpose
+    - action: utter_capabilities
+    - intent: deny
+    - action: utter_apology
+    - action: utter_gif_sad
 
 - story: power user path
   steps:
