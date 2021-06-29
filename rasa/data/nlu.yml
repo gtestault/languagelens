@@ -60,6 +60,8 @@ nlu:
   examples: |
     - no
     - n
+    - no thanks
+    - no thank you
     - never
     - I don't think so
     - don't like that

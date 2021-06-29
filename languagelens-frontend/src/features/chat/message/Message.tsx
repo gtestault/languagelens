@@ -24,7 +24,7 @@ const Message = ({children, delivered, sender, className}: MessageProps) => {
             return null
         }
         return (
-            <Avatar style={{backgroundColor: "#BFDBFE"}} shape="circle" size="default" src={botImg}/>
+            <Avatar style={{border: "2px solid #374151", backgroundColor: "#BFDBFE"}} shape="circle" size="default" src={botImg}/>
         )
     }
     const renderUserAvatar = () => {

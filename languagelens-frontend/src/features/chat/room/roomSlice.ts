@@ -12,11 +12,13 @@ export interface Message {
 export interface RoomState {
     messages: Message[];
     isBotThinking: boolean
+    isQuestionAnsweringMode: boolean
 }
 
 export enum SENDER {
     SENDER_BOT,
     SENDER_USER,
+    SENDER_QUESTION_ANSWERING,
 }
 
 const initialBotMessage: Message = {
@@ -26,8 +28,11 @@ const initialBotMessage: Message = {
 }
 const initialState: RoomState = {
     messages: [initialBotMessage],
-    isBotThinking: false
+    isBotThinking: false,
+    isQuestionAnsweringMode: false,
 };
+
+
 export const roomSlice = createSlice({
     name: 'room',
     initialState,
@@ -37,12 +42,22 @@ export const roomSlice = createSlice({
             state.messages = [...state.messages, action.payload]
             // when we get a user message, set the bot state to thinking
             state.isBotThinking = action.payload.sender === SENDER.SENDER_USER
+        },
+        enterQuestionAnsweringMode: (state) => {
+            state.isQuestionAnsweringMode = false
+        },
+        exitQuestionAnsweringMode: (state) => {
+            state.isQuestionAnsweringMode = false
+        },
+        switchRoomMode: (state) => {
+            state.isQuestionAnsweringMode = !state.isQuestionAnsweringMode
         }
     }
 })
 
-export const {addMessage} = roomSlice.actions
+export const {addMessage, enterQuestionAnsweringMode, exitQuestionAnsweringMode, switchRoomMode} = roomSlice.actions
 export const selectMessages = (state: RootState) => state.room.messages;
 export const selectIsBotThinking = (state: RootState) => state.room.isBotThinking;
+export const selectIsQuestionAnsweringMode = (state: RootState) => state.room.isQuestionAnsweringMode;
 
 export default roomSlice.reducer

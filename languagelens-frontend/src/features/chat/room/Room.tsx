@@ -1,11 +1,18 @@
 import React, {useCallback, useEffect, useRef, useState} from "react"
 import Message from "../message/Message";
 import clsx from "clsx";
-import {Input, Spin} from "antd";
+import {Button, Input, Spin} from "antd";
 import useWebSocket, {ReadyState} from "react-use-websocket";
-import {addMessage, Message as MessageType, selectIsBotThinking, selectMessages, SENDER} from "./roomSlice";
+import {
+    addMessage,
+    Message as MessageType,
+    selectIsBotThinking,
+    selectIsQuestionAnsweringMode,
+    selectMessages,
+    SENDER, switchRoomMode
+} from "./roomSlice";
 import {useAppDispatch, useAppSelector} from "../../../app/hooks";
-import {GifMessage, REACTION} from "../message/GifMessage/GifMessage";
+import {GifMessage} from "../message/GifMessage/GifMessage";
 import {UploadMessage} from "../message/UploadMessage/UploadMessage";
 
 type RoomProps = {
@@ -17,6 +24,7 @@ const Room = (props: RoomProps) => {
     const socketUrl = "ws://127.0.0.1:5034/ws"
     const messages = useAppSelector(selectMessages)
     const isBotThinking = useAppSelector(selectIsBotThinking)
+    const isQuestionAnsweringMode = useAppSelector(selectIsQuestionAnsweringMode)
     const dispatch = useAppDispatch()
     const {
         sendMessage,
@@ -42,7 +50,6 @@ const Room = (props: RoomProps) => {
     }, [messages, scrollToBottomOfChat])
 
     useEffect(() => {
-        console.log(lastMessage)
         if (!lastMessage || !lastMessage.data) {
             return
         }
@@ -82,6 +89,10 @@ const Room = (props: RoomProps) => {
         setMessageBoxInput("")
     }
 
+    const roomModeButtonText = isQuestionAnsweringMode ? "Exit question mode" : "Enter question mode"
+    const handleSwitchRoomModeButtonClick = () => {
+        dispatch(switchRoomMode())
+    }
     return (
         <div className={clsx(props.className, "flex flex-col w-1/3 ring-4 rounded-sm ring-blue-400 justify-between")}
              style={{height: "80vh"}}>
@@ -89,8 +100,11 @@ const Room = (props: RoomProps) => {
                 {renderMessages()}
                 {renderThinkingIndicator()}
             </section>
-            <Input value={messageBoxInput} onChange={(e) => setMessageBoxInput(e.target.value)}
-                   onKeyDown={handleInputPressEnter} placeholder="Send a message to the Language Lens Bot!"/>
+            <div className="flex flex-row gap-2">
+                <Button type="primary" onClick={handleSwitchRoomModeButtonClick}>{roomModeButtonText}</Button>
+                <Input className="flex-1" value={messageBoxInput} onChange={(e) => setMessageBoxInput(e.target.value)}
+                       onKeyDown={handleInputPressEnter} placeholder="Send a message to the Language Lens Bot!"/>
+            </div>
         </div>
     )
 }
