@@ -9,11 +9,14 @@ import {
     selectIsBotThinking,
     selectIsQuestionAnsweringMode,
     selectMessages,
-    SENDER, switchRoomMode
+    SENDER,
+    switchRoomMode
 } from "./roomSlice";
 import {useAppDispatch, useAppSelector} from "../../../app/hooks";
 import {GifMessage} from "../message/GifMessage/GifMessage";
 import {UploadMessage} from "../message/UploadMessage/UploadMessage";
+import {FileSearchOutlined as QuestionModeIcon, RollbackOutlined as ExitQuestionModeIcon} from "@ant-design/icons";
+import {QuestionModeTutorial} from "./question-mode-tutorial/QuestionModeTutorial";
 
 type RoomProps = {
     className?: string
@@ -73,12 +76,9 @@ const Room = (props: RoomProps) => {
     }
 
     const renderThinkingIndicator = () => {
-        if (isBotThinking) {
-            return (
-                <Spin className="mt-10" tip="thinking"/>
-            )
-        }
-        return null
+        return isBotThinking && (
+            <Spin className="mt-20" tip="thinking"/>
+        )
     }
     const handleInputPressEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key !== "Enter") {
@@ -90,21 +90,38 @@ const Room = (props: RoomProps) => {
     }
 
     const roomModeButtonText = isQuestionAnsweringMode ? "Exit question mode" : "Enter question mode"
+    const roomModeButtonIcon = isQuestionAnsweringMode ? <ExitQuestionModeIcon/> : <QuestionModeIcon/>
     const handleSwitchRoomModeButtonClick = () => {
         dispatch(switchRoomMode())
     }
+    const ringStyle = isQuestionAnsweringMode ? "ring-green-700" : "ring-blue-400"
+    const renderChatRoomContent = () => {
+        if (isQuestionAnsweringMode) {
+           return <QuestionModeTutorial onFinished={handleSwitchRoomModeButtonClick}/>
+        }
+        return (
+            <>
+                <section ref={chatBoxRef} style={{overflowX: "hidden"}}
+                         className="flex flex-1 mt-2 mb-4 overflow-y-auto gap-1.5 flex-col">
+                    {renderMessages()}
+                    {renderThinkingIndicator()}
+                </section>
+                <div className="flex flex-row gap-2">
+                    <Button type="default" style={{display: "flex", alignItems: "center"}}
+                            icon={roomModeButtonIcon}
+                            onClick={handleSwitchRoomModeButtonClick}>{roomModeButtonText}</Button>
+                    <Input className="flex-1" value={messageBoxInput}
+                           onChange={(e) => setMessageBoxInput(e.target.value)}
+                           onKeyDown={handleInputPressEnter}
+                           placeholder="Send a message to the Language Lens Bot!"/>
+                </div>
+            </>
+        )
+    }
     return (
-        <div className={clsx(props.className, "flex flex-col w-1/3 ring-4 rounded-sm ring-blue-400 justify-between")}
-             style={{height: "80vh"}}>
-            <section ref={chatBoxRef} className="flex flex-1 mt-2 mb-4 overflow-y-auto gap-1.5 flex-col">
-                {renderMessages()}
-                {renderThinkingIndicator()}
-            </section>
-            <div className="flex flex-row gap-2">
-                <Button type="primary" onClick={handleSwitchRoomModeButtonClick}>{roomModeButtonText}</Button>
-                <Input className="flex-1" value={messageBoxInput} onChange={(e) => setMessageBoxInput(e.target.value)}
-                       onKeyDown={handleInputPressEnter} placeholder="Send a message to the Language Lens Bot!"/>
-            </div>
+        <div className={clsx(props.className, ringStyle, "flex flex-col w-1/3 ring-4 rounded-sm justify-between")}
+             style={{height: "80vh", transitionProperty: "box-shadow", transitionDuration: "1s"}}>
+            {renderChatRoomContent()}
         </div>
     )
 }
