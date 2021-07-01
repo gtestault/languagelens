@@ -13,11 +13,14 @@ export const QuestionModeOnboarding = ({onFinished}: QuestionModeOnboardingProps
     return (
         <AnimatePresence>
             <motion.div className="flex flex-col items-center justify-between pt-5 pb-5 h-full w-full bg-green-700"
-                        initial={{opacity: 0}} animate={{opacity: 1}}>
+                        initial={{opacity: 0}}
+                        animate={{opacity: 1}}
+                        exit={{opacity: 0}}>
                 <h2 className="text-white text-2xl font-semibold mb-0">What is Question Mode?</h2>
                 <div className="flex flex-col items-center flex-1 p-5 pt-10 w-full gap-10 pl-10">
                     <div className="flex flex-col mt-5 gap-10">
-                        <FeatureDescription logoSrc={QuestionLogo} description="Ask questions in natural language."/>
+                        <FeatureDescription logoSrc={QuestionLogo}
+                                            description="Ask questions in natural language."/>
                         <FeatureDescription logoSrc={FileSearchLogo}
                                             description="AI searches for an answer in your documents."/>
                         <FeatureDescription logoSrc={HighlightLogo}

@@ -92,7 +92,9 @@ const Room = (props: RoomProps) => {
 
     const renderThinkingIndicator = () => {
         return isBotThinking && (
-            <Spin className="mt-20" tip="thinking"/>
+            <div className="self-center mt-5">
+                <Spin className="mt-20" tip="thinking"/>
+            </div>
         )
     }
     const handleInputPressEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
