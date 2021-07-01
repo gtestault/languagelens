@@ -1,22 +1,30 @@
 import React, {useCallback, useEffect, useRef, useState} from "react"
 import Message from "../message/Message";
 import clsx from "clsx";
-import {Button, Input, Spin} from "antd";
+import {Button, Input, message, Spin} from "antd";
 import useWebSocket, {ReadyState} from "react-use-websocket";
 import {
     addMessage,
+    finishedQuestionAnsweringOnboarding,
     Message as MessageType,
     selectIsBotThinking,
     selectIsQuestionAnsweringMode,
+    selectIsQuestionAnsweringOnboardingActive,
     selectMessages,
     SENDER,
+    setBotThinking,
     switchRoomMode
 } from "./roomSlice";
 import {useAppDispatch, useAppSelector} from "../../../app/hooks";
 import {GifMessage} from "../message/GifMessage/GifMessage";
 import {UploadMessage} from "../message/UploadMessage/UploadMessage";
 import {FileSearchOutlined as QuestionModeIcon, RollbackOutlined as ExitQuestionModeIcon} from "@ant-design/icons";
-import {QuestionModeTutorial} from "./question-mode-tutorial/QuestionModeTutorial";
+import {QuestionModeOnboarding} from "./question-mode-onboarding/QuestionModeOnboarding";
+import {QuestionMessage} from "../message/QuestionMessage/QuestionMessage";
+import {postDocumentQuery} from "../../document/querySlice";
+import {unwrapResult} from "@reduxjs/toolkit";
+import {QuestionResponseMessage} from "../message/QuestionResponseMessage/QuestionResponseMessage";
+import {GreenMessage} from "../message/GreenMessage/GreenMessage";
 
 type RoomProps = {
     className?: string
@@ -28,6 +36,7 @@ const Room = (props: RoomProps) => {
     const messages = useAppSelector(selectMessages)
     const isBotThinking = useAppSelector(selectIsBotThinking)
     const isQuestionAnsweringMode = useAppSelector(selectIsQuestionAnsweringMode)
+    const isQuestionAnsweringOnboardingActive = useAppSelector(selectIsQuestionAnsweringOnboardingActive)
     const dispatch = useAppDispatch()
     const {
         sendMessage,
@@ -69,6 +78,12 @@ const Room = (props: RoomProps) => {
                         return <GifMessage handleGifLoaded={scrollToBottomOfChat} key={msg.time} msg={msg}/>
                     case "upload":
                         return <UploadMessage key={msg.time} msg={msg}/>
+                    case "green":
+                        return <GreenMessage key={msg.time} msg={msg}/>
+                    case "question":
+                        return <QuestionMessage key={msg.time} msg={msg}/>
+                    case "question_response":
+                        return <QuestionResponseMessage key={msg.time} msg={msg} queryResponse={msg.custom.queryResponse}/>
                 }
             }
             return <Message className="ml-2 mr-2" key={msg.time} delivered sender={msg.sender}>{msg.message}</Message>
@@ -84,20 +99,72 @@ const Room = (props: RoomProps) => {
         if (e.key !== "Enter") {
             return
         }
-        dispatch(addMessage({message: messageBoxInput, sender: SENDER.SENDER_USER, time: new Date().getTime()}))
-        sendJsonMessage({message: messageBoxInput})
         setMessageBoxInput("")
+        if (isQuestionAnsweringMode) {
+            sendMessageToQuestionAnsweringPipeline()
+        } else {
+            sendMessageToConversationalPipeline()
+        }
+    }
+    const sendMessageToQuestionAnsweringPipeline = () => {
+        dispatch(addMessage({
+            message: messageBoxInput,
+            sender: SENDER.SENDER_USER,
+            time: new Date().getTime(),
+            custom: {type: "question"}
+        }))
+        dispatch(postDocumentQuery({query: messageBoxInput, top_k_reader: 5, top_k_retriever: 5}))
+            .then(unwrapResult)
+            .then((res) => {
+                if (!res.answers) {
+                    return
+                }
+                dispatch(addMessage({
+                    sender: SENDER.SENDER_BOT,
+                    time: new Date().getTime(),
+                    message: "",
+                    custom: {type: "question_response", queryResponse: res}
+                }))
+            })
+            .catch(e => {
+                message.error("Failed to send question")
+                dispatch(setBotThinking(false))
+            })
+        dispatch(setBotThinking(true))
+    }
+    const sendMessageToConversationalPipeline = () => {
+        dispatch(addMessage({message: messageBoxInput, sender: SENDER.SENDER_USER, time: new Date().getTime()}))
+        dispatch(setBotThinking(true))
+        sendJsonMessage({message: messageBoxInput})
     }
 
     const roomModeButtonText = isQuestionAnsweringMode ? "Exit question mode" : "Enter question mode"
     const roomModeButtonIcon = isQuestionAnsweringMode ? <ExitQuestionModeIcon/> : <QuestionModeIcon/>
     const handleSwitchRoomModeButtonClick = () => {
+        if (!isQuestionAnsweringMode) {
+            dispatch(addMessage({
+                message: "We are now in the question answering mode. In this mode, I will only answer questions related to your documents.",
+                time: new Date().getTime(),
+                sender: SENDER.SENDER_BOT,
+                custom: {type: "green"}
+            }))
+        } else {
+           dispatch(addMessage({
+               message: "We are back in conversation mode!",
+               time: new Date().getTime(),
+               sender: SENDER.SENDER_BOT,
+           }))
+        }
         dispatch(switchRoomMode())
     }
+    const handleFinishedQuestionAnsweringOnboarding = () => {
+        dispatch(finishedQuestionAnsweringOnboarding())
+    }
     const ringStyle = isQuestionAnsweringMode ? "ring-green-700" : "ring-blue-400"
+    const questionAnsweringOnboardingStyle = isQuestionAnsweringOnboardingActive && isQuestionAnsweringMode ? "p-0" : "p-2"
     const renderChatRoomContent = () => {
-        if (isQuestionAnsweringMode) {
-           return <QuestionModeTutorial onFinished={handleSwitchRoomModeButtonClick}/>
+        if (isQuestionAnsweringMode && isQuestionAnsweringOnboardingActive) {
+            return <QuestionModeOnboarding onFinished={handleFinishedQuestionAnsweringOnboarding}/>
         }
         return (
             <>
@@ -119,8 +186,9 @@ const Room = (props: RoomProps) => {
         )
     }
     return (
-        <div className={clsx(props.className, ringStyle, "flex flex-col w-1/3 ring-4 rounded-sm justify-between")}
-             style={{height: "80vh", transitionProperty: "box-shadow", transitionDuration: "1s"}}>
+        <div
+            className={clsx(props.className, questionAnsweringOnboardingStyle, ringStyle, "flex flex-col ring-4 rounded-sm justify-between")}
+            style={{height: "80vh", transitionProperty: "box-shadow", transitionDuration: "1s"}}>
             {renderChatRoomContent()}
         </div>
     )

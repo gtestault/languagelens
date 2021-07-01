@@ -1,9 +1,9 @@
-import {BASE_URL, QUERY_PATH} from "../../constants";
+import {BASE_URL, LIST_DOCUMENTS_PATH, QUERY_PATH} from "../../constants";
 
 export type QueryRequest = {
     query: string,
-    top_k_retriever: string,
-    top_k_reader: string,
+    top_k_retriever: number,
+    top_k_reader: number,
 }
 export interface QueryResponse {
     query: string;
@@ -33,4 +33,8 @@ export function postQuery(request: QueryRequest) {
             },
             body: JSON.stringify(request)
         })
+}
+
+export function fetchDocuments() {
+   return fetch(BASE_URL + LIST_DOCUMENTS_PATH)
 }

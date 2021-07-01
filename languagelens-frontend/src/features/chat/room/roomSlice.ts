@@ -13,6 +13,7 @@ export interface RoomState {
     messages: Message[];
     isBotThinking: boolean
     isQuestionAnsweringMode: boolean
+    isQuestionAnsweringOnboardingActive: boolean,
 }
 
 export enum SENDER {
@@ -30,6 +31,7 @@ const initialState: RoomState = {
     messages: [initialBotMessage],
     isBotThinking: false,
     isQuestionAnsweringMode: false,
+    isQuestionAnsweringOnboardingActive: true,
 };
 
 
@@ -40,8 +42,12 @@ export const roomSlice = createSlice({
     reducers: {
         addMessage: (state, action: PayloadAction<Message>) => {
             state.messages = [...state.messages, action.payload]
-            // when we get a user message, set the bot state to thinking
-            state.isBotThinking = action.payload.sender === SENDER.SENDER_USER
+            if (action.payload.sender === SENDER.SENDER_BOT) {
+                state.isBotThinking = false
+            }
+        },
+        setBotThinking: (state, action: PayloadAction<boolean>) => {
+            state.isBotThinking = action.payload
         },
         enterQuestionAnsweringMode: (state) => {
             state.isQuestionAnsweringMode = false
@@ -51,13 +57,18 @@ export const roomSlice = createSlice({
         },
         switchRoomMode: (state) => {
             state.isQuestionAnsweringMode = !state.isQuestionAnsweringMode
-        }
+        },
+        finishedQuestionAnsweringOnboarding: (state) => {
+            state.isQuestionAnsweringOnboardingActive = false
+        },
     }
 })
 
-export const {addMessage, enterQuestionAnsweringMode, exitQuestionAnsweringMode, switchRoomMode} = roomSlice.actions
+export const {addMessage, enterQuestionAnsweringMode, exitQuestionAnsweringMode, switchRoomMode, finishedQuestionAnsweringOnboarding, setBotThinking} = roomSlice.actions
 export const selectMessages = (state: RootState) => state.room.messages;
 export const selectIsBotThinking = (state: RootState) => state.room.isBotThinking;
 export const selectIsQuestionAnsweringMode = (state: RootState) => state.room.isQuestionAnsweringMode;
+export const selectIsQuestionAnswering = (state: RootState) => state.room.isQuestionAnsweringMode;
+export const selectIsQuestionAnsweringOnboardingActive = (state: RootState) => state.room.isQuestionAnsweringOnboardingActive;
 
 export default roomSlice.reducer

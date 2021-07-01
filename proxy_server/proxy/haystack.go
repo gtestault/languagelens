@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	HAYSTACK_API_BASE_URL    = "http://127.0.0.1:8000"
+	HAYSTACK_API_BASE_URL    = "http://127.0.0.1:8002"
 	HAYSTACK_API_UPLOAD_PATH = "/file-upload"
 	HAYSTACK_API_QUERY_PATH  = "/query"
 )

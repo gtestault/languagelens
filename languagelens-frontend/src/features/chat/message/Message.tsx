@@ -1,17 +1,20 @@
-import React, {useMemo} from "react"
+import React, {CSSProperties, useEffect, useMemo} from "react"
 import clsx from "clsx";
 import {Avatar} from "antd";
 import botImg from "../../../assets/pictures/robot.png"
-import {SENDER} from "../room/roomSlice";
+import {selectIsQuestionAnsweringMode, SENDER} from "../room/roomSlice";
 import {AnimatePresence, motion} from "framer-motion"
+import {useAppSelector} from "../../../app/hooks";
 
 type MessageProps = {
     children: React.ReactNode
     delivered: boolean,
     className?: string,
+    messageBubbleStyle?: CSSProperties
     sender: SENDER,
 }
-const Message = ({children, delivered, sender, className}: MessageProps) => {
+const Message = ({children, delivered, sender, className, messageBubbleStyle}: MessageProps) => {
+    const isQuestionAnsweringMode = useAppSelector(selectIsQuestionAnsweringMode)
     const messageStyle = useMemo(() => {
         if (sender === SENDER.SENDER_USER) {
             return "rounded-bl-lg self-end"
@@ -23,8 +26,9 @@ const Message = ({children, delivered, sender, className}: MessageProps) => {
         if (sender !== SENDER.SENDER_BOT) {
             return null
         }
+        const botBackgroundColor = isQuestionAnsweringMode ? "#f6ffed" : "#BFDBFE"
         return (
-            <Avatar style={{border: "2px solid #374151", backgroundColor: "#BFDBFE"}} shape="circle" size="default"
+            <Avatar style={{border: "2px solid #374151", backgroundColor: botBackgroundColor, transitionProperty: "background-color", transitionDuration: "1s"}} shape="circle" size="default"
                     src={botImg}/>
         )
     }
@@ -34,8 +38,6 @@ const Message = ({children, delivered, sender, className}: MessageProps) => {
         }
         return <Avatar style={{backgroundColor: "#374151"}} shape="circle" size="default">You</Avatar>
     }
-
-    const roundingStyle = sender == SENDER.SENDER_USER ? "" : ""
     const translationAnimation = sender == SENDER.SENDER_USER ? "10em" : "-10em"
     return (
         <AnimatePresence>
@@ -46,7 +48,7 @@ const Message = ({children, delivered, sender, className}: MessageProps) => {
                         className={clsx("flex flex-row items-end gap-1", messageStyle, className)}
             >
                 {renderBotAvatar()}
-                <div style={{maxWidth: "20em", overflowWrap: "break-word"}}
+                <div style={{maxWidth: "20em", overflowWrap: "break-word", ...messageBubbleStyle}}
                      className={clsx("bg-blue-500 text-white rounded-t-lg p-1.5", messageStyle)}>
                     {children}
                 </div>

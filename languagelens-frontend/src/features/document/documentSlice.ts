@@ -1,39 +1,39 @@
+import {postDocumentQuery, QueryState} from "./querySlice";
 import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
-import {fetchCount} from "../counter/counterAPI";
-import {postQuery, QueryRequest, QueryResponse} from "./documentAPI";
+import {fetchDocuments, postQuery, QueryRequest, QueryResponse} from "./documentAPI";
+import {RootState} from "../../app/store";
 
-export interface QueryState {
+export interface DocumentState {
     error: string
-    queryResponse: QueryResponse | null
+    documents: string[]
     isLoading: boolean
 }
 
-const initialState: QueryState = {
+
+const initialState: DocumentState = {
     error: "",
-    queryResponse: null,
+    documents: [],
     isLoading: false,
 }
 
-
-export const postDocumentQuery = createAsyncThunk(
-    'document/queryRequest',
-    async (query: QueryRequest): Promise<QueryResponse> => {
-        const response = await postQuery(query);
+export const getDocuments = createAsyncThunk(
+    'document/getDocuments',
+    async (): Promise<string[]> => {
+        const response = await fetchDocuments();
         // The value we return becomes the `fulfilled` action payload
         return response.json();
     }
 );
 
-const querySlice = createSlice({
-    name: "query",
+const documentSlice = createSlice({
+    name: "document",
     initialState: initialState,
-    reducers: {
-    },
+    reducers: {},
     extraReducers: (builder) => {
-        builder.addCase(postDocumentQuery.fulfilled, (state, action) => {
+        builder.addCase(getDocuments.fulfilled, (state, action) => {
             state.error = ""
             state.isLoading = false
-            state.queryResponse = action.payload
+            state.documents = action.payload
         })
         builder.addCase(postDocumentQuery.pending, (state, action) => {
             state.error = ""
@@ -49,4 +49,6 @@ const querySlice = createSlice({
         })
     }
 })
-export default querySlice.reducer
+
+export const selectDocuments = (state: RootState) => state.document.documents;
+export default documentSlice.reducer
