@@ -37,8 +37,8 @@ type DocumentMetaDataResponse struct {
 	} `json:"hits"`
 }
 
-func (r *Proxy) HandleFetchDocuments(w http.ResponseWriter, req *http.Request) {
-	docs, err := r.fetchDocumentNamesFromElasticSearch()
+func (p *Proxy) HandleFetchDocuments(w http.ResponseWriter, req *http.Request) {
+	docs, err := p.fetchDocumentNamesFromElasticSearch()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Error(errors.Wrap(err, "handleFetchDocuments"))
@@ -50,8 +50,8 @@ func (r *Proxy) HandleFetchDocuments(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func (r *Proxy) fetchDocumentNamesFromElasticSearch() ([]string, error) {
-	es := r.ElasticClient
+func (p *Proxy) fetchDocumentNamesFromElasticSearch() ([]string, error) {
+	es := p.ElasticClient
 	query := map[string]interface{}{
 		"query": map[string]interface{}{
 			"match_all": map[string]interface{}{},

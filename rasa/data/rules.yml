@@ -27,3 +27,22 @@ rules:
   steps:
   - intent: EXTERNAL_document_ready
   - action: utter_document_ready
+
+- rule: Activate youtube form
+  steps:
+    - intent: youtube_upload
+    - action: youtube_process_form
+    - active_loop: youtube_process_form
+
+- rule: Submit youtube form
+  condition:
+    # Condition that form is active.
+    - active_loop: youtube_process_form
+  steps:
+    # Form is deactivated
+    - action: youtube_process_form
+    - active_loop: null
+    - slot_was_set:
+        - requested_slot: null
+    # The actions we want to run when the form is submitted.
+    - action: action_process_youtube

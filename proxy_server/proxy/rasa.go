@@ -13,14 +13,14 @@ type RasaCallbackMessage struct {
 	Custom    *json.RawMessage `json:"custom"`
 }
 
-func (r *Proxy) ReceiveRasaCallback(w http.ResponseWriter, req *http.Request) {
+func (p *Proxy) ReceiveRasaCallback(w http.ResponseWriter, req *http.Request) {
 	var msg RasaCallbackMessage
 	err := json.NewDecoder(req.Body).Decode(&msg)
 	if err != nil {
 		log.Warn(err)
 		return
 	}
-	s, ok := r.SocketServer.Sockets[msg.Recipient]
+	s, ok := p.SocketServer.Sockets[msg.Recipient]
 	if !ok {
 		log.Warn("socket not found:", msg.Recipient)
 		return

@@ -11,7 +11,6 @@ nlu:
     - good evening
     - moin
     - hey there
-    - let's go
     - howdy
     - hey dude
     - goodmorning
@@ -97,9 +96,26 @@ nlu:
     - appreciate it
     - thanks for the help
 
+
 - intent: bot_challenge
   examples: |
     - are you a bot?
     - are you a human?
     - am I talking to a bot?
     - am I talking to a human?
+
+
+#----------------------------------------------------- Youtube ---------------------------------------------------------
+- intent: youtube_upload
+  examples: |
+    - i want you to process a youtube video
+    - process this youtube for me
+    - can you answer questions about youtube videos?
+    - yt
+    - youtube
+    - here is a youtube link: [https://www.youtube.com/watch?v=dQw4w9WgXcQ](regex_youtube_link)
+    - [https://www.youtube.com/watch?v=dQw4w9WgXcQ](regex_youtube_link)
+
+- regex: regex_youtube_link
+  examples: |
+    -  (?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})

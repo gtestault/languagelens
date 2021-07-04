@@ -51,15 +51,16 @@ const AnswerCard = ({answer}: AnswerCardProps) => {
         disptach(removeHighlightDocument())
     }
     return (
-        <Card onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} style={{margin: "0.75em"}}>
-            <div className="flex flex-col items-center space-between">
-                <div className="text-lg font-semibold">Answer found in: </div>
-                <Text style={{margin: 0}} code>{answer.meta.name}</Text>
-                <div className="w-full mt-4 mb-2 flex flex-row items-center space-between">
-                    <span style={{width: "20em", wordWrap: "normal"}} className="text-l font-semibold">Confidence score:</span>
-                    <Progress type="line" percent={prob} width={80} />
+            <div onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} style={{margin: "0.75em"}} className="flex flex-col text-white items-center space-between">
+                <div className="w-full flex flex-row items-start space-between">
+                    <span style={{wordWrap: "normal"}} className="flex-1 text-l ">Answer found in:</span>
+                    <span style={{wordWrap: "normal"}} className="flex-1 text-l ">{answer.meta.name}</span>
                 </div>
-                <div className="leading-8 mt-4 ring rounded-md ring-green-900 p-2">
+                <div className="w-full mt-4 mb-2 flex flex-row items-center space-between">
+                    <span style={{wordWrap: "normal"}} className="flex-1 text-l">Confidence score:</span>
+                    <Progress className="flex-1" type="line" format={percent => <Text style={{color: "white"}}>{percent} %</Text>} style={{color: "white"}} percent={prob} width={80} />
+                </div>
+                <div className="leading-8 mt-4 bg-white text-black p-2">
                     <span className="mr-2">[...]</span>
                     {contextBefore}
                     <span className="p-1 ml-1 mr-1 text-white rounded-md border-2" style={{backgroundColor: "#047857", borderColor: "#047857"}}>
@@ -70,6 +71,5 @@ const AnswerCard = ({answer}: AnswerCardProps) => {
                     <span className="ml-2">[...]</span>
                 </div>
             </div>
-        </Card>
     )
 }

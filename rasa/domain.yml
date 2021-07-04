@@ -11,17 +11,32 @@ intents:
   - bot_challenge
   - upload_file
   - purpose
+  - youtube_upload
+  - thank
   - EXTERNAL_document_ready
 
 entities:
-  - document
+  - regex_youtube_link
 
 slots:
-  document:
+  youtube_link:
     type: text
     influence_conversation: false
 
+actions:
+  - action_process_youtube
+
+forms:
+  youtube_process_form:
+    required_slots:
+      youtube_link:
+        - type: from_entity
+          entity: regex_youtube_link
+
 responses:
+  utter_ask_youtube_link:
+  - text: "Please give me a youtube link so that I can process it for you."
+
   utter_greet:
   - text: "Hey! welcome to Language Lens. I am a bot able to process documents for you. Do you want to learn more?"
 
@@ -72,6 +87,11 @@ responses:
   utter_upload_file:
   - custom:
       type: "upload"
+
+#----------------------------------------------------- Youtube ---------------------------------------------------------
+  utter_confirm_youtube:
+    - text: "Sure, I can process a youtube video for you. Just give me the link to the video and I'll add the transcript to your documents."
+
 
 session_config:
   session_expiration_time: 60

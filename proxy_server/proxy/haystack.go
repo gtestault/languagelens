@@ -72,14 +72,14 @@ func formFileToBuffer(fh *multipart.FileHeader) (*bytes.Buffer, contentType, err
 	}
 	return proxyReqBody, contentType(formWriter.FormDataContentType()), err
 }
-func (r *Proxy) haystackFileUpload(buff *bytes.Buffer, ct contentType) error {
+func (p *Proxy) haystackFileUpload(buff *bytes.Buffer, ct contentType) error {
 	errLabel := "proxying request to haystack"
 	proxyReq, err := http.NewRequest(http.MethodPost, HAYSTACK_API_BASE_URL+HAYSTACK_API_UPLOAD_PATH, bytes.NewReader(buff.Bytes()))
 	if err != nil {
 		return errors.Wrap(err, errLabel)
 	}
 	proxyReq.Header.Set("Content-Type", string(ct))
-	proxyResp, err := r.Client.Do(proxyReq)
+	proxyResp, err := p.Client.Do(proxyReq)
 	if err != nil {
 		return errors.Wrap(err, errLabel)
 	}
@@ -89,18 +89,18 @@ func (r *Proxy) haystackFileUpload(buff *bytes.Buffer, ct contentType) error {
 	}
 	return nil
 }
-func (r *Proxy) proxyFileToHaystack(fh *multipart.FileHeader) error {
+func (p *Proxy) proxyFileToHaystack(fh *multipart.FileHeader) error {
 	buff, contentType, err := formFileToBuffer(fh)
 	if err != nil {
 		return err
 	}
-	err = r.haystackFileUpload(buff, contentType)
+	err = p.haystackFileUpload(buff, contentType)
 	if err != nil {
 		return err
 	}
 	return nil
 }
-func (r *Proxy) HandleFileUpload(w http.ResponseWriter, req *http.Request) {
+func (p *Proxy) HandleFileUpload(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "multipart/form-data")
 	err := req.ParseMultipartForm(32 << 20) // 32MB is the default used by FormFile
 	if err != nil {
@@ -110,7 +110,7 @@ func (r *Proxy) HandleFileUpload(w http.ResponseWriter, req *http.Request) {
 	}
 	fhs := req.MultipartForm.File["files"]
 	for _, fh := range fhs {
-		err = r.proxyFileToHaystack(fh)
+		err = p.proxyFileToHaystack(fh)
 		if err != nil {
 			log.Warn(errors.Wrap(err, "haystack file proxy failed"))
 			w.WriteHeader(http.StatusInternalServerError)
@@ -120,7 +120,7 @@ func (r *Proxy) HandleFileUpload(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func (r *Proxy) proxyQueryToHaystack(w http.ResponseWriter, req *http.Request) error {
+func (p *Proxy) proxyQueryToHaystack(w http.ResponseWriter, req *http.Request) error {
 	buff := &bytes.Buffer{}
 	_, err := io.Copy(buff, req.Body)
 	if err != nil {
@@ -131,7 +131,7 @@ func (r *Proxy) proxyQueryToHaystack(w http.ResponseWriter, req *http.Request) e
 		return err
 	}
 	proxyReq.Header.Set("Content-Type", "application/json")
-	proxyResp, err := r.Client.Do(proxyReq)
+	proxyResp, err := p.Client.Do(proxyReq)
 	if err != nil {
 		return err
 	}
@@ -152,8 +152,8 @@ func (r *Proxy) proxyQueryToHaystack(w http.ResponseWriter, req *http.Request) e
 	return nil
 }
 
-func (r *Proxy) HandleQuery(w http.ResponseWriter, req *http.Request) {
-	err := r.proxyQueryToHaystack(w, req)
+func (p *Proxy) HandleQuery(w http.ResponseWriter, req *http.Request) {
+	err := p.proxyQueryToHaystack(w, req)
 	if err != nil {
 		log.Warn(errors.Wrap(err, "proxying query to haystack"))
 		w.WriteHeader(http.StatusInternalServerError)

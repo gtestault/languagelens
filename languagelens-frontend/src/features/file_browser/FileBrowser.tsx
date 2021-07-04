@@ -13,7 +13,7 @@ type FileBrowserProps = {
 export const FileBrowser = (props: FileBrowserProps) => {
     const dispatch = useAppDispatch()
     const documents = useAppSelector(selectDocuments)
-    const wrapperClasses = clsx("overflow-y-auto flex flex-col items-center p-5 rounded-md font-semibold", documents && "bg-gray-700 ring-4 ring-gray-700")
+    const wrapperClasses = clsx("overflow-y-auto overflow-x-hidden flex flex-col items-center p-5 rounded-md font-semibold", documents && "bg-gray-700 ring-4 ring-gray-700")
     const wrapperStyles = {width: "20em", height: "80vh"}
     useEffect(() => {
         dispatch(getDocuments())
