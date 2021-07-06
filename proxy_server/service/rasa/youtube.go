@@ -1,6 +1,7 @@
 package rasa
 
 import (
+	"bytes"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"net/http"
@@ -19,7 +20,6 @@ func (as *ActionServer) youtubeErrorAction(w http.ResponseWriter, err error) {
 	}
 }
 func (as *ActionServer) HandleYoutubeAction(w http.ResponseWriter, input *ActionServerInput) {
-
 	youtubeURL, err := url.Parse(input.Tracker.Slots.YoutubeLink)
 	if err != nil {
 		as.youtubeErrorAction(w, err)
@@ -27,7 +27,18 @@ func (as *ActionServer) HandleYoutubeAction(w http.ResponseWriter, input *Action
 	}
 	videoId := youtubeURL.Query().Get("v")
 	log.Info("video id: ", videoId)
-	err = as.NewTextResponse("All clear! I'm now processing that youtube video for you!").writeAsJSON(w)
+	transcript, err := as.Proxy.FetchYoutubeTranscriptDocument(videoId)
+	if err != nil {
+		as.youtubeErrorAction(w, err)
+		return
+	}
+	file := bytes.NewBuffer([]byte(transcript.Text))
+	err = as.Proxy.ProxyFileToHaystack(file, videoId+".txt", "", transcript.Meta)
+	if err != nil {
+		as.youtubeErrorAction(w, err)
+		return
+	}
+	err = as.NewYoutubeResponse(videoId).writeAsJSON(w)
 	if err != nil {
 		log.Error(errors.Wrap(err, "youtube action"))
 		w.WriteHeader(http.StatusInternalServerError)

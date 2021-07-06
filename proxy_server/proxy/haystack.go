@@ -9,12 +9,16 @@ import (
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
+	"strings"
 )
 
 const (
 	HAYSTACK_API_BASE_URL    = "http://127.0.0.1:8002"
 	HAYSTACK_API_UPLOAD_PATH = "/file-upload"
 	HAYSTACK_API_QUERY_PATH  = "/query"
+
+	FILE_TYPE_PDF = "PDF"
+	FILE_TYPE_TXT = "TXT"
 )
 
 type HaystackQueryResponse struct {
@@ -52,17 +56,18 @@ func errFromStatusCode(resp *http.Response) error {
 	}
 	return nil
 }
-func formFileToBuffer(fh *multipart.FileHeader) (*bytes.Buffer, contentType, error) {
+
+type FileMetadata struct {
+	Type string `json:"type"`
+	Meta string `json:"extra"`
+}
+
+func createMultipartForm(f io.Reader, fileName string, splitBy string, metadata *FileMetadata) (*bytes.Buffer, contentType, error) {
 	errLabel := "form file to buffer conversion"
-	f, err := fh.Open()
-	defer func() { _ = f.Close() }()
-	if err != nil {
-		return nil, "", errors.Wrap(err, errLabel)
-	}
 	proxyReqBody := &bytes.Buffer{}
 	formWriter := multipart.NewWriter(proxyReqBody)
 	defer func() { _ = formWriter.Close() }()
-	fw, err := formWriter.CreateFormFile("file", fh.Filename)
+	fw, err := formWriter.CreateFormFile("file", fileName)
 	if err != nil {
 		return nil, "", errors.Wrap(err, errLabel)
 	}
@@ -70,9 +75,41 @@ func formFileToBuffer(fh *multipart.FileHeader) (*bytes.Buffer, contentType, err
 	if err != nil {
 		return nil, "", errors.Wrap(err, errLabel)
 	}
+
+	if metadata == nil {
+		metadata = fileTypeMetadataFromFileName(fileName)
+	}
+	if splitBy != "" {
+		err = formWriter.WriteField("split_by", splitBy)
+		if err != nil {
+			return nil, "", errors.Wrap(err, errLabel)
+		}
+	}
+	if metadata != nil {
+		metaJson, err := json.Marshal(metadata)
+		if err != nil {
+			return nil, "", errors.Wrap(err, errLabel)
+		} else {
+			err = formWriter.WriteField("meta", string(metaJson))
+			if err != nil {
+				return nil, "", errors.Wrap(err, errLabel)
+			}
+		}
+	}
 	return proxyReqBody, contentType(formWriter.FormDataContentType()), err
 }
-func (p *Proxy) haystackFileUpload(buff *bytes.Buffer, ct contentType) error {
+
+func fileTypeMetadataFromFileName(fileName string) *FileMetadata {
+	switch {
+	case strings.HasSuffix(fileName, ".pdf"):
+		return &FileMetadata{Type: FILE_TYPE_PDF, Meta: ""}
+	case strings.HasSuffix(fileName, ".txt"):
+		return &FileMetadata{Type: FILE_TYPE_TXT, Meta: ""}
+	default:
+		return nil
+	}
+}
+func (p *Proxy) HaystackFileUpload(buff *bytes.Buffer, ct contentType) error {
 	errLabel := "proxying request to haystack"
 	proxyReq, err := http.NewRequest(http.MethodPost, HAYSTACK_API_BASE_URL+HAYSTACK_API_UPLOAD_PATH, bytes.NewReader(buff.Bytes()))
 	if err != nil {
@@ -89,12 +126,12 @@ func (p *Proxy) haystackFileUpload(buff *bytes.Buffer, ct contentType) error {
 	}
 	return nil
 }
-func (p *Proxy) proxyFileToHaystack(fh *multipart.FileHeader) error {
-	buff, contentType, err := formFileToBuffer(fh)
+func (p *Proxy) ProxyFileToHaystack(f io.Reader, fileName string, splitBy string, metadata *FileMetadata) error {
+	buff, contentType, err := createMultipartForm(f, fileName, splitBy, metadata)
 	if err != nil {
 		return err
 	}
-	err = p.haystackFileUpload(buff, contentType)
+	err = p.HaystackFileUpload(buff, contentType)
 	if err != nil {
 		return err
 	}
@@ -110,13 +147,15 @@ func (p *Proxy) HandleFileUpload(w http.ResponseWriter, req *http.Request) {
 	}
 	fhs := req.MultipartForm.File["files"]
 	for _, fh := range fhs {
-		err = p.proxyFileToHaystack(fh)
+		f, err := fh.Open()
+		err = p.ProxyFileToHaystack(f, fh.Filename, "word", nil)
 		if err != nil {
 			log.Warn(errors.Wrap(err, "haystack file proxy failed"))
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 		log.Info("successful file proxy to haystack")
+		_ = f.Close()
 	}
 }
 

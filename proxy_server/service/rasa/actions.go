@@ -21,6 +21,7 @@ func NewActionServer(client *http.Client, proxy *proxy.Proxy) *ActionServer {
 }
 
 func (obj *ActionServerReturnedObject) writeAsJSON(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
 	return json.NewEncoder(w).Encode(obj)
 }
 func (as *ActionServer) HandleActionServer(w http.ResponseWriter, req *http.Request) {

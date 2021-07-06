@@ -49,6 +49,10 @@ func (s *SparseIntArray) ToJSON() ([]byte, error) {
 	return json.Marshal(s.m)
 }
 
+func (s *SparseIntArray) Map() map[int]int {
+	return s.m
+}
+
 func NewSparseIntArrayFromJSON(jsonBytes []byte) (*SparseIntArray, error) {
 	s := &SparseIntArray{}
 	err := json.Unmarshal(jsonBytes, &s.m)

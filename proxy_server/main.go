@@ -46,6 +46,7 @@ func main() {
 	router.HandleFunc("/upload", proxyServer.HandleFileUpload).Methods(http.MethodPost)
 	router.HandleFunc("/query", proxyServer.HandleQuery).Methods(http.MethodPost)
 	router.HandleFunc("/documents", proxyServer.HandleFetchDocuments).Methods(http.MethodGet)
+	router.HandleFunc("/document/youtube-time-data", proxyServer.HandleFetchTimeForYoutubeDocument).Methods(http.MethodPost)
 	router.HandleFunc("/ws", socketServer.WebsocketHandler)
 	router.HandleFunc("/rasa-action-server/webhook", actionServer.HandleActionServer)
 	log.Info("Listening on port: ", SERVER_PORT_NUMBER)

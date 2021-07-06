@@ -25,6 +25,9 @@ import {postDocumentQuery} from "../../document/querySlice";
 import {unwrapResult} from "@reduxjs/toolkit";
 import {QuestionResponseMessage} from "../message/QuestionResponseMessage/QuestionResponseMessage";
 import {GreenMessage} from "../message/GreenMessage/GreenMessage";
+import {fetchDocuments} from "../../document/documentAPI";
+import {getDocuments} from "../../document/documentSlice";
+import {YoutubeMessage} from "../message/YoutubeMessage/YoutubeMessage";
 
 type RoomProps = {
     className?: string
@@ -68,6 +71,9 @@ const Room = (props: RoomProps) => {
         const message: MessageType = JSON.parse(lastMessage.data)
         message.time = new Date().getTime()
         dispatch(addMessage(message))
+        if (message.custom && message.custom.type === "youtube") {
+            dispatch(getDocuments())
+        }
     }, [lastMessage])
 
     const renderMessages = () => {
@@ -84,6 +90,8 @@ const Room = (props: RoomProps) => {
                         return <QuestionMessage key={msg.time} msg={msg}/>
                     case "question_response":
                         return <QuestionResponseMessage key={msg.time} msg={msg} queryResponse={msg.custom.queryResponse}/>
+                    case "youtube":
+                        return <YoutubeMessage key={msg.time} msg={msg}/>
                 }
             }
             return <Message className="ml-2 mr-2" key={msg.time} delivered sender={msg.sender}>{msg.message}</Message>

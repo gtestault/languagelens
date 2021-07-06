@@ -1,10 +1,16 @@
 import React, {useEffect, useRef} from "react";
 import clsx from "clsx";
 import {useAppDispatch, useAppSelector} from "../../app/hooks";
-import {getDocuments, selectDocuments, selectHighlightedDocument} from "../document/documentSlice";
+import {
+    DocumentsByName,
+    getDocuments, selectAllDocumentNames,
+    selectDocumentsByName,
+    selectHighlightedDocument
+} from "../document/documentSlice";
 import {AnimatePresence, AnimateSharedLayout, motion} from "framer-motion";
 import pdfLogo from "../../assets/logo/file-pdf-gray.svg"
 import textLogo from "../../assets/logo/file-alt-gray.svg"
+import youtubeLogo from "../../assets/logo/youtube-gray.svg"
 import {Tooltip} from "antd";
 
 type FileBrowserProps = {
@@ -12,13 +18,14 @@ type FileBrowserProps = {
 }
 export const FileBrowser = (props: FileBrowserProps) => {
     const dispatch = useAppDispatch()
-    const documents = useAppSelector(selectDocuments)
-    const wrapperClasses = clsx("overflow-y-auto overflow-x-hidden flex flex-col items-center p-5 rounded-md font-semibold", documents && "bg-gray-700 ring-4 ring-gray-700")
+    const documents = useAppSelector(selectDocumentsByName)
+    const hasNoDocs = Object.keys(documents).length === 0
+    const wrapperClasses = clsx("overflow-y-auto overflow-x-hidden flex flex-col items-center p-5 rounded-md font-semibold", !hasNoDocs && "bg-gray-700 ring-4 ring-gray-700")
     const wrapperStyles = {width: "20em", height: "80vh"}
     useEffect(() => {
         dispatch(getDocuments())
     }, [])
-    if (!documents) {
+    if (hasNoDocs) {
         return (
             <div style={wrapperStyles} className={clsx(props.className, wrapperClasses)}/>
         )
@@ -36,7 +43,7 @@ export const FileBrowser = (props: FileBrowserProps) => {
 };
 
 type FileGridProps = {
-    documents: string[]
+    documents: DocumentsByName
     className?: string
 }
 const FileGrid = ({documents, className}: FileGridProps) => {
@@ -53,28 +60,37 @@ const FileGrid = ({documents, className}: FileGridProps) => {
         el.scrollIntoView({behavior: "smooth"})
     }, [highlightedDoc])
     const renderDocuments = () => {
-        const getLogo = (doc: string): string => (
-            doc.endsWith(".pdf") ? pdfLogo : textLogo
-        )
-        return documents.map(doc => {
+        const getLogo = (docType: string): string => {
+            switch (docType) {
+                case "PDF":
+                    return pdfLogo
+                case "YOUTUBE":
+                    return youtubeLogo
+                case "TXT":
+                    return textLogo
+            }
+            return textLogo
+        }
+        return Object.keys(documents).map(docName => {
+            const docWithoutExtension = docName.split(".")[0]
                 return (
-                    <AnimateSharedLayout key={doc}>
+                    <AnimateSharedLayout key={docName}>
                         <AnimatePresence>
                             <motion.div
-                                ref={el => refs.current.set(doc, el)}
+                                ref={el => refs.current.set(docName, el)}
                                 layout
                                 initial={{y: 50, opacity: 0}}
                                 animate={{y: 0, opacity: 1}}
                                 transition={{duration: 0.5}}
-                                key={doc}
+                                key={docName}
                                 className={clsx(
                                     "flex flex-col items-center justify-start bg-white text-gray-700 rounded-md h-40 p-5 text-center truncate transition-colors",
-                                    (doc === highlightedDoc) && "bg-yellow-300"
+                                    (docName === highlightedDoc) && "bg-yellow-300"
                                 )}>
-                                <Tooltip title={doc}>
-                                    <span className="w-40 truncate">{doc}</span>
+                                <Tooltip title={docWithoutExtension}>
+                                    <span className="w-40 truncate">{docWithoutExtension}</span>
                                 </Tooltip>
-                                <img className="w-10 flex-1" src={getLogo(doc)} alt="file-type-logo"/>
+                                <img className="w-10 flex-1" src={getLogo(documents[docName].type)} alt="file-type-logo"/>
                             </motion.div>
                         </AnimatePresence>
                     </AnimateSharedLayout>

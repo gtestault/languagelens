@@ -4,21 +4,45 @@ type ActionRejectedError struct {
 	ActionName string `json:"action_name"`
 	Error      string `json:"error"`
 }
-type Response struct {
+type TextResponse struct {
 	Text string `json:"text"`
+}
+type YoutubeResponse struct {
+	Custom YoutubeResponseCustomPayload `json:"custom"`
+}
+type YoutubeResponseCustomPayload struct {
+	Type   string `json:"type"`
+	LinkId string `json:"link_id"`
 }
 type Event struct {
-	Text string `json:"text"`
+	Event string  `json:"event"`
+	Name  string  `json:"name"`
+	Value *string `json:"value"`
 }
 type ActionServerReturnedObject struct {
-	Events    []Event    `json:"events"`
-	Responses []Response `json:"responses"`
+	Events    []Event       `json:"events"`
+	Responses []interface{} `json:"responses"`
 }
 
 func (as *ActionServer) NewTextResponse(text string) *ActionServerReturnedObject {
-	events := make([]Event, 0, 0)
-	responses := make([]Response, 0, 1)
-	responses = append(responses, Response{text})
+	responses := make([]interface{}, 0, 1)
+	events := make([]Event, 0, 1)
+	responses = append(responses, TextResponse{text})
+	events = append(events, Event{Event: "slot", Name: "youtube_link", Value: nil})
+	obj := &ActionServerReturnedObject{Events: events, Responses: responses}
+	return obj
+}
+
+func (as *ActionServer) NewYoutubeResponse(linkId string) *ActionServerReturnedObject {
+	responses := make([]interface{}, 0, 1)
+	events := make([]Event, 0, 1)
+	responses = append(responses, YoutubeResponse{
+		Custom: YoutubeResponseCustomPayload{
+			Type:   "youtube",
+			LinkId: linkId,
+		},
+	})
+	events = append(events, Event{Event: "slot", Name: "youtube_link", Value: nil})
 	obj := &ActionServerReturnedObject{Events: events, Responses: responses}
 	return obj
 }

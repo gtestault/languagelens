@@ -1,4 +1,4 @@
-import {BASE_URL, LIST_DOCUMENTS_PATH, QUERY_PATH} from "../../constants";
+import {BASE_URL, LIST_DOCUMENTS_PATH, QUERY_PATH, YOUTUBE_DOCUMENT_TIME_DATA_PATH} from "../../constants";
 
 export type QueryRequest = {
     query: string,
@@ -37,4 +37,14 @@ export function postQuery(request: QueryRequest) {
 
 export function fetchDocuments() {
    return fetch(BASE_URL + LIST_DOCUMENTS_PATH)
+}
+
+export function fetchYoutubeTimeData(documentName: string, offsetStartInDoc: number): Promise<Response> {
+    return fetch(BASE_URL + YOUTUBE_DOCUMENT_TIME_DATA_PATH, {
+        method: "POST",
+        headers: {
+            "Content-Type" : "application/json"
+        },
+        body: JSON.stringify({document_name: documentName, offset_start_in_doc: offsetStartInDoc})
+    })
 }

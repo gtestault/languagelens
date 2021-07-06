@@ -5,22 +5,32 @@ import {RootState} from "../../app/store";
 
 export interface DocumentState {
     error: string
-    documents: string[]
+    documentsByName: DocumentsByName
+    allDocumentNames: string[]
     isLoading: boolean
     highlightedDocument: string,
+}
+
+export interface DocumentsByName {
+    [name: string]: Document
+}
+
+export interface Document {
+    type: string
 }
 
 
 const initialState: DocumentState = {
     error: "",
-    documents: [],
+    documentsByName: {},
+    allDocumentNames: [],
     highlightedDocument: "",
     isLoading: false,
 }
 
 export const getDocuments = createAsyncThunk(
     'document/getDocuments',
-    async (): Promise<string[]> => {
+    async (): Promise<DocumentsByName> => {
         const response = await fetchDocuments();
         // The value we return becomes the `fulfilled` action payload
         return response.json();
@@ -42,7 +52,11 @@ const documentSlice = createSlice({
         builder.addCase(getDocuments.fulfilled, (state, action) => {
             state.error = ""
             state.isLoading = false
-            state.documents = action.payload
+            if (!action.payload) {
+                return
+            }
+            state.allDocumentNames = Object.keys(action.payload)
+            state.documentsByName = action.payload
         })
         builder.addCase(postDocumentQuery.pending, (state, action) => {
             state.error = ""
@@ -60,6 +74,7 @@ const documentSlice = createSlice({
 })
 
 export const {highlightDocument, removeHighlightDocument} = documentSlice.actions
-export const selectDocuments = (state: RootState) => state.document.documents;
+export const selectDocumentsByName = (state: RootState) => state.document.documentsByName;
+export const selectAllDocumentNames = (state: RootState) => state.document.allDocumentNames;
 export const selectHighlightedDocument = (state: RootState) => state.document.highlightedDocument;
 export default documentSlice.reducer
