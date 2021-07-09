@@ -37,7 +37,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	client := http.Client{Timeout: 40 * time.Second}
+	client := http.Client{
+		Transport: &http.Transport{ResponseHeaderTimeout: 2 * time.Minute},
+		Timeout:   2 * time.Minute,
+	}
 	socketServer := socket.SocketServer{Client: &client, Sockets: make(map[string]*socket.Socket)}
 	proxyServer := proxy.Proxy{Client: &client, ElasticClient: elasticClient, SocketServer: &socketServer}
 	actionServer := rasa.NewActionServer(&client, &proxyServer)
@@ -50,7 +53,13 @@ func main() {
 	router.HandleFunc("/ws", socketServer.WebsocketHandler)
 	router.HandleFunc("/rasa-action-server/webhook", actionServer.HandleActionServer)
 	log.Info("Listening on port: ", SERVER_PORT_NUMBER)
-	err = http.ListenAndServe("127.0.0.1:"+SERVER_PORT_NUMBER, c.Handler(router))
+	s := &http.Server{
+		Addr:         "127.0.0.1:" + SERVER_PORT_NUMBER,
+		Handler:      c.Handler(router),
+		ReadTimeout:  2 * time.Minute,
+		WriteTimeout: 2 * time.Minute,
+	}
+	err = s.ListenAndServe()
 	if err != nil {
 		log.Fatal(err)
 	}

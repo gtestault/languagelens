@@ -62,7 +62,7 @@ const Room = (props: RoomProps) => {
 
     useEffect(() => {
         scrollToBottomOfChat()
-    }, [messages, scrollToBottomOfChat])
+    }, [messages.length, scrollToBottomOfChat])
 
     useEffect(() => {
         if (!lastMessage || !lastMessage.data) {

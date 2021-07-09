@@ -8,6 +8,7 @@ export type QueryRequest = {
 export interface QueryResponse {
     query: string;
     answers?: (QueryAnswer)[] | null;
+    selectedAnswer?: number
 }
 export interface QueryAnswer {
     answer: string;

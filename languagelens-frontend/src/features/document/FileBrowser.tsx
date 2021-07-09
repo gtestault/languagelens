@@ -3,10 +3,9 @@ import clsx from "clsx";
 import {useAppDispatch, useAppSelector} from "../../app/hooks";
 import {
     DocumentsByName,
-    getDocuments, selectAllDocumentNames,
+    getDocuments,
     selectDocumentsByName,
-    selectHighlightedDocument
-} from "../document/documentSlice";
+} from "./documentSlice";
 import {AnimatePresence, AnimateSharedLayout, motion} from "framer-motion";
 import pdfLogo from "../../assets/logo/file-pdf-gray.svg"
 import textLogo from "../../assets/logo/file-alt-gray.svg"
@@ -47,18 +46,6 @@ type FileGridProps = {
     className?: string
 }
 const FileGrid = ({documents, className}: FileGridProps) => {
-    const highlightedDoc = useAppSelector(selectHighlightedDocument)
-    const refs = useRef(new Map<string, HTMLDivElement | null>())
-    useEffect(() => {
-        if (highlightedDoc === "") {
-            return
-        }
-        const el = refs.current.get(highlightedDoc)
-        if (!el) {
-            return
-        }
-        el.scrollIntoView({behavior: "smooth"})
-    }, [highlightedDoc])
     const renderDocuments = () => {
         const getLogo = (docType: string): string => {
             switch (docType) {
@@ -77,7 +64,6 @@ const FileGrid = ({documents, className}: FileGridProps) => {
                     <AnimateSharedLayout key={docName}>
                         <AnimatePresence>
                             <motion.div
-                                ref={el => refs.current.set(docName, el)}
                                 layout
                                 initial={{y: 50, opacity: 0}}
                                 animate={{y: 0, opacity: 1}}
@@ -85,7 +71,6 @@ const FileGrid = ({documents, className}: FileGridProps) => {
                                 key={docName}
                                 className={clsx(
                                     "flex flex-col items-center justify-start bg-white text-gray-700 rounded-md h-40 p-5 text-center truncate transition-colors",
-                                    (docName === highlightedDoc) && "bg-yellow-300"
                                 )}>
                                 <Tooltip title={docWithoutExtension}>
                                     <span className="w-40 truncate">{docWithoutExtension}</span>

@@ -1,6 +1,7 @@
 import Message from "../message/Message";
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {RootState} from "../../../app/store";
+import {QueryResponse} from "../../document/documentAPI";
 
 export interface Message {
     sender: SENDER,
@@ -27,6 +28,12 @@ const initialBotMessage: Message = {
     message: "Hello!",
     time: new Date().getTime()
 }
+
+export interface MessageSelectedAnswer {
+    time: number
+    index: number
+}
+
 const initialState: RoomState = {
     messages: [initialBotMessage],
     isBotThinking: false,
@@ -46,6 +53,14 @@ export const roomSlice = createSlice({
                 state.isBotThinking = false
             }
         },
+        setQuestionResponseSelectedAnswer: (state, action: PayloadAction<MessageSelectedAnswer>) => {
+            let messagesCopy = [...state.messages]
+            let messageIndex = messagesCopy.findIndex(m => m.time === action.payload.time)
+            let newMessage = {...messagesCopy[messageIndex]};
+            (newMessage.custom.queryResponse as QueryResponse).selectedAnswer = action.payload.index
+            messagesCopy[messageIndex] = newMessage
+            state.messages = messagesCopy
+        },
         setBotThinking: (state, action: PayloadAction<boolean>) => {
             state.isBotThinking = action.payload
         },
@@ -64,7 +79,15 @@ export const roomSlice = createSlice({
     }
 })
 
-export const {addMessage, enterQuestionAnsweringMode, exitQuestionAnsweringMode, switchRoomMode, finishedQuestionAnsweringOnboarding, setBotThinking} = roomSlice.actions
+export const {
+    addMessage,
+    enterQuestionAnsweringMode,
+    exitQuestionAnsweringMode,
+    setQuestionResponseSelectedAnswer,
+    switchRoomMode,
+    finishedQuestionAnsweringOnboarding,
+    setBotThinking
+} = roomSlice.actions
 export const selectMessages = (state: RootState) => state.room.messages;
 export const selectIsBotThinking = (state: RootState) => state.room.isBotThinking;
 export const selectIsQuestionAnsweringMode = (state: RootState) => state.room.isQuestionAnsweringMode;

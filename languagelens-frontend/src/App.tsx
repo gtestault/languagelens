@@ -2,7 +2,8 @@ import React from 'react';
 import "./App.less"
 import Room from "./features/chat/room/Room"
 import Header from "./components/header/Header";
-import {FileBrowser} from "./features/file_browser/FileBrowser";
+import {FileBrowser} from "./features/document/FileBrowser";
+import {AnswersList} from "./features/answers_list/AnswersList";
 
 function App() {
     return (
@@ -12,7 +13,7 @@ function App() {
                 <div className="flex flex-row space-between w-full">
                     <FileBrowser className="flex-1 m-10" />
                     <Room className="m-10 w-1/3"/>
-                    <div style={{width: "20em"}} className="flex-1 m-10 p-5"/>
+                    <AnswersList className="flex-1 m-10"/>
                 </div>
             </div>
         </div>

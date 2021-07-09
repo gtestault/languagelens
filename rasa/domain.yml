@@ -56,7 +56,7 @@ responses:
   - text: "Would you like to upload a PDF for me to process?"
 
   utter_capabilities:
-  - text: "I am a document analysis bot. You can give me PDF documents and I'll do some processing magic on them. Do you want to upload a file for me to process?"
+  - text: "I am a document analysis bot. You can give me PDF and TXT documents and then ask me questions about them. I can also answer questions related to youtube videos. Do you want to upload a file for me to process?"
 
   utter_bot:
   - text: "I am a bot BEEP-BOOP"
