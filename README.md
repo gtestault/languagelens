@@ -1,5 +1,6 @@
 ### What does it do?
-Conversation base question answering for youtube, PDF & TXT documents.
+Conversation based question answering for youtube, PDF & TXT documents.
+
 ![img](./preview/yt.png)
 
 ### How?
