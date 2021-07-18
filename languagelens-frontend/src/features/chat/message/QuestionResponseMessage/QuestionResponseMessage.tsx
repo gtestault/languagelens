@@ -71,7 +71,7 @@ const AnswerCard = ({answer, document, onShowResultsList}: AnswerCardProps) => {
     const answerText = answer.context.slice(answer.offset_start, answer.offset_end + 1)
     const contextAfter = answer.context.slice(answer.offset_end + 1, -1)
     const stripExtension = (fileName: string) => (fileName.split(".")[0])
-    const isYoutubeDocument = document.type === "YOUTUBE"
+    const isYoutubeDocument = document.type && document.type === "YOUTUBE"
     const prob = Math.round(answer.probability * 100)
     const youtubeAnswerStartTime = Math.max(0, youtubeOffsetTime - 10)
 
@@ -116,7 +116,7 @@ const AnswerCard = ({answer, document, onShowResultsList}: AnswerCardProps) => {
 
     const renderDocTitle = () => {
         const stripped = stripExtension(answer.meta.name)
-        if (document.type === "YOUTUBE") {
+        if (isYoutubeDocument) {
             return youtubeDocNameToYoutubeLink(answer.meta.name)
         }
         return stripped

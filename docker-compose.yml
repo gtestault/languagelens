@@ -1,0 +1,40 @@
+version: "3"
+services:
+  elasticsearch:
+    image: "elasticsearch:7.9.2"
+    ports:
+      - 9200:9200
+    environment:
+      - discovery.type=single-node
+  languagelens-haystack:
+    image: deepset/haystack-cpu:0.9.0
+    environment:
+      - ELASTICSEARCHDOCUMENTSTORE_PARAMS_HOST=elasticsearch
+    ports:
+      - 8002:8000
+    depends_on:
+      - elasticsearch
+    command: "/bin/bash -c 'sleep 20 && gunicorn rest_api.application:app -b 0.0.0.0 -k uvicorn.workers.UvicornWorker --workers 1 --timeout 180'"
+  languagelens-frontend:
+    build: ./languagelens-frontend
+    ports:
+      - 8080:80
+  languagelens-proxy:
+    build: ./languagelens-proxy
+    ports:
+      - 5034:5034
+    environment:
+      - ELASTIC_SEARCH_ADDRESS=http://elasticsearch:9200
+      - HAYSTACK_ADDRESS=http://languagelens-haystack:8000
+      - YOUTUBE_TRANSCRIPT_SERVER_ADDRESS=http://languagelens-yt-transcript:5035
+      - RASA_ADDRESS=http://languagelens-rasa:5005
+    depends_on:
+      - elasticsearch
+  languagelens-yt-transcript:
+    build: ./languagelens-yt-transcript
+    ports:
+      - 5035:5035
+  languagelens-rasa:
+    build: ./languagelens-rasa
+    ports:
+      - 5005:5005

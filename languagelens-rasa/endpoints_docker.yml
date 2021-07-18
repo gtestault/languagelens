@@ -1,0 +1,2 @@
+action_endpoint:
+  url: "http://languagelens-proxy:5034/rasa-action-server/webhook"

@@ -1,0 +1,121 @@
+version: "2.0"
+
+nlu:
+- intent: greet
+  examples: |
+    - hey
+    - hello
+    - hi
+    - hello there
+    - good morning
+    - good evening
+    - moin
+    - hey there
+    - howdy
+    - hey dude
+    - goodmorning
+    - goodevening
+    - good afternoon
+
+- intent: goodbye
+  examples: |
+    - good afternoon
+    - cu
+    - good by
+    - cee you later
+    - good night
+    - bye
+    - goodbye
+    - have a nice day
+    - see you around
+    - bye bye
+    - see you later
+
+- intent: insult
+  examples: |
+    - fuck you
+    - cunt
+    - asshole
+    - piss off
+    - wanker
+    - son of a bitch
+    - you are an asshole
+    - you absolute twat
+    - you are a cunt
+    - you are a wanker
+
+- intent: affirm
+  examples: |
+    - yes
+    - y
+    - indeed
+    - of course
+    - ok
+    - let's go
+    - let's get started
+    - that sounds good
+    - correct
+    - yes sir
+    - absolutely
+
+- intent: deny
+  examples: |
+    - no
+    - n
+    - no thanks
+    - no thank you
+    - never
+    - I don't think so
+    - don't like that
+    - no way
+    - not really
+
+- intent: upload_file
+  examples: |
+    - can i send you a file?
+    - sending you a file
+    - here is a pdf
+    - upload pdf
+    - upload
+    - sending you a pdf
+    - process
+    - process some files for me
+
+- intent: purpose
+  examples: |
+    - what is your purpose?
+    - what can you do?
+    - how can you help me?
+    - what's your thing?
+
+- intent: thank
+  examples: |
+    - thanks!
+    - thank you
+    - thank you so much
+    - appreciate it
+    - thanks for the help
+
+
+- intent: bot_challenge
+  examples: |
+    - are you a bot?
+    - are you a human?
+    - am I talking to a bot?
+    - am I talking to a human?
+
+
+#----------------------------------------------------- Youtube ---------------------------------------------------------
+- intent: youtube_upload
+  examples: |
+    - i want you to process a youtube video
+    - process this youtube for me
+    - can you answer questions about youtube videos?
+    - yt
+    - youtube
+    - here is a youtube link: [https://www.youtube.com/watch?v=dQw4w9WgXcQ](regex_youtube_link)
+    - [https://www.youtube.com/watch?v=dQw4w9WgXcQ](regex_youtube_link)
+
+- regex: regex_youtube_link
+  examples: |
+    -  (?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})
