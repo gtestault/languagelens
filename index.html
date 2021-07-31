@@ -1,82 +1,107 @@
 <!doctype html>
 <!--suppress CssUnresolvedCustomProperty -->
 <html>
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<title>reveal.js</title>
+    <title>reveal.js</title>
 
-		<link rel="stylesheet" href="dist/reset.css">
-		<link rel="stylesheet" href="dist/reveal.css">
-		<link rel="stylesheet" href="dist/theme/blood.css">
+    <link rel="stylesheet" href="dist/reset.css">
+    <link rel="stylesheet" href="dist/reveal.css">
+    <link rel="stylesheet" href="dist/theme/blood.css">
 
-		<!-- Theme used for syntax highlighted code -->
-		<link rel="stylesheet" href="plugin/highlight/monokai.css">
-		<link rel="stylesheet" href="./css/custom.css">
-	</head>
-	<body>
-		<div class="reveal">
-			<div class="slides">
-				<section>
-					<a href="https://github.com/gtestault/languagelens">
-						<img src="./images/languagelens.svg" alt="languagelens logo" style="height: 180px; margin: 0 auto 4rem auto; background: transparent;" class="demo-logo">
-					</a>
-					<h3>Media question answering</h3>
-					<p>
-						<small>Gabriel Testault</small>
-					</p>
-				</section>
+    <!-- Theme used for syntax highlighted code -->
+    <link rel="stylesheet" href="plugin/highlight/monokai.css">
+    <link rel="stylesheet" href="./css/custom.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="reveal">
+    <div class="slides">
+        <section>
+            <a href="https://github.com/gtestault/languagelens">
+                <img src="./images/languagelens.svg" alt="languagelens logo"
+                     style="height: 180px; margin: 0 auto 4rem auto; background: transparent;" class="demo-logo">
+            </a>
+            <h3>Media question answering</h3>
+            <p>
+                <small>Gabriel Testault</small>
+            </p>
+        </section>
 
 
-				<section data-auto-animate>
-					<h2>Features</h2>
-					<ul>
-						<li>Conversational AI</li>
-					</ul>
-				</section>
-				<section data-auto-animate>
-					<h2>Features</h2>
-					<ul>
-						<li>Conversational AI</li>
-						<li>State of the art question answering</li>
-					</ul>
-				</section>
+        <section data-auto-animate>
+            <h2>Features</h2>
+            <ul>
+                <li>Conversational AI</li>
+            </ul>
+        </section>
+        <section data-auto-animate>
+            <h2>Features</h2>
+            <ul>
+                <li>Conversational AI</li>
+                <li>State of the art question answering</li>
+            </ul>
+        </section>
 
-				<section data-auto-animate>
-					<h2>Features</h2>
-					<ul>
-						<li>Conversational AI</li>
-						<li>State of the art question answering</li>
-						<li>Youtube transcript processing</li>
-					</ul>
-				</section>
+        <section data-auto-animate>
+            <h2>Features</h2>
+            <ul>
+                <li>Conversational AI</li>
+                <li>State of the art question answering</li>
+                <li>Youtube transcript processing</li>
+            </ul>
+        </section>
 
-				<section>
-					<h3>Conversational AI</h3>
-				</section>
+        <section>
+            <h3>Conversational AI</h3>
+        </section>
 
-				<section>
-					<video data-autoplay muted loop class="stretch" src="./video/demo_conversation.mp4"></video>
-				</section>
+        <section>
+            <video data-autoplay muted loop class="stretch" src="./video/demo_conversation.mp4"></video>
+        </section>
 
-			</div>
-		</div>
+        <section>
+            <h3>State of the art question answering</h3>
+            <ul>
+                <li>Question answering powered by Haystack</li>
+                <li>Using latest BERT transformer models</li>
+            </ul>
+        </section>
 
-		<script src="dist/reveal.js"></script>
-		<script src="plugin/notes/notes.js"></script>
-		<script src="plugin/markdown/markdown.js"></script>
-		<script src="plugin/highlight/highlight.js"></script>
-		<script>
-			// More info about initialization & config:
-			// - https://revealjs.com/initialization/
-			// - https://revealjs.com/config/
-			Reveal.initialize({
-				hash: true,
+        <section>
+            <img class="stretch" src="./images/system.png" alt="system diagram"/>
+        </section>
 
-				// Learn about plugins: https://revealjs.com/plugins/
-				plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ]
-			});
-		</script>
-	</body>
+
+        <section>
+            <h3>Youtube transcript processing</h3>
+        </section>
+
+        <section>
+            <video data-autoplay controls loop class="stretch" src="./video/yt_transcript.mp4"></video>
+        </section>
+
+    </div>
+</div>
+
+<script src="dist/reveal.js"></script>
+<script src="plugin/notes/notes.js"></script>
+<script src="plugin/markdown/markdown.js"></script>
+<script src="plugin/highlight/highlight.js"></script>
+<script>
+    // More info about initialization & config:
+    // - https://revealjs.com/initialization/
+    // - https://revealjs.com/config/
+    Reveal.initialize({
+        hash: true,
+
+        // Learn about plugins: https://revealjs.com/plugins/
+        plugins: [RevealMarkdown, RevealHighlight, RevealNotes]
+    });
+</script>
+</body>
 </html>
