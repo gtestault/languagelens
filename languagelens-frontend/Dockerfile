@@ -1,7 +1,7 @@
 FROM node:16-alpine3.11 as builder
 WORKDIR /frontend
 RUN apk add gzip
-COPY package.json yarn.lock ./
+COPY package.json package.json /frontend/
 RUN yarn install
 COPY . .
 RUN yarn build
